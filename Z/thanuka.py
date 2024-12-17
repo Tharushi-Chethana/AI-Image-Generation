@@ -13,7 +13,7 @@ model.config.pad_token_id = tokenizer.pad_token_id  # Update model config with p
 
 pipe = pipeline("text-generation", model=model, tokenizer=tokenizer)
 
-# Function to extract text from a PDF file
+# Function to extract text from a PDF file 
 def extract_text_from_pdf(pdf_path):
     text = ""
     with open(pdf_path, "rb") as file:

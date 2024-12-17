@@ -74,7 +74,7 @@ function App() {
               className="form-select form-select-lg mb-3 inputSelection"
               aria-label="Large select example"
             >
-              <option selected>Open this select menu</option>
+            <option selected>Open this select menu</option>
               <option value="1">Tea Box</option>
               <option value="2">Wine Box</option>
               <option value="3">Cheese Box</option>

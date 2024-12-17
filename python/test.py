@@ -1,81 +1,68 @@
 import os
-import time
-import PyPDF2
+from flask import Flask, request, jsonify
+from huggingface_hub import InferenceClient
+from PIL import Image
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
-# Load the model and tokenizer
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-3B-Instruct")
-model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-3B-Instruct")
+app = Flask(__name__)
 
-# Define pad_token_id and eos_token_id
-tokenizer.pad_token = tokenizer.eos_token  # Set padding token to be the same as end of sequence
-model.config.pad_token_id = tokenizer.pad_token_id  # Update model config with pad token id
+# Initialize the client with your API key
+api_key = "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"
+client = InferenceClient(api_key=api_key)
 
-pipe = pipeline("text-generation", model=model, tokenizer=tokenizer)
+# Function to expand the user input into a detailed version
+def expand_user_input(user_input: str):
+    messages = [
+        {
+            "role": "user",
+            "content": f"Please provide a detailed paragraph-style description based on this input: {user_input}"
+        }
+    ]
+    completion = client.chat.completions.create(
+        model="meta-llama/Llama-3.2-3B-Instruct",
+        messages=messages,
+        max_tokens=500,
+    )
+    expanded_text = completion.choices[0].message['content']
+    
+    # Clean up and remove unnecessary line breaks or added segments
+    # Replace multiple spaces or line breaks with a single space
+    expanded_text = ' '.join(expanded_text.splitlines()).strip()
+    
+    return expanded_text
 
-# Function to extract text from a PDF file
-def extract_text_from_pdf(pdf_path):
-    text = ""
-    with open(pdf_path, "rb") as file:
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
-    return text
 
-# Function to ask questions and get answers using the model
-def ask_question(text, question):
-    input_text = f"{text}\n\nQuestion: {question}\nAnswer:"
-    response = pipe(input_text, max_new_tokens=50, num_return_sequences=1)
-    generated_text = response[0]['generated_text']
+# Function to generate the image
+def generate_image(expanded_text):
+    # Expand user input (your logic)
+    expanded_text = f"Generate an image based on this: {expanded_text}"
 
-    # Extract the answer more reliably by using string slicing
-    answer_part = generated_text.split("Answer:")[-1].strip()  # Only keep what's after "Answer:"
-    return answer_part.split("\n")[0]  # Return only the first line after "Answer:"
+    # Generate the image
+    image = client.text_to_image(
+        prompt=expanded_text,
+        model="black-forest-labs/FLUX.1-dev"
+    )
+    print("Tharushi")
+    # Path to the `generated_images` folder inside the `backend` folder
+    generated_images_path = os.path.join("backend", "generated_images")
+    os.makedirs(generated_images_path, exist_ok=True)  # Ensure the folder exists
 
-# Handle the folder and extract data from PDF files
-def process_pdfs(folder_path):
-    # List all PDF files in the specified directory
-    pdf_files = [f for f in os.listdir(folder_path) if f.endswith('.pdf')]
+    # Save the image
+    image_name = f"{str(os.urandom(4).hex())}.png"
+    image_path = os.path.join(generated_images_path, image_name)
+    image.save(image_path)
+    print(image_name)
+    return image_path
 
-    # Check if there are no PDF files found
-    if not pdf_files:
-        print("No PDF files found in the specified folder.")
-        return
+@app.route("/generate", methods=["POST"])
+def generate():
+    user_input = request.json.get("userInput")
+    if not user_input:
+        return jsonify({"error": "No input provided"}), 400
+    
+    expanded_text = expand_user_input(user_input)
+    image_path = generate_image(expanded_text)
+    return jsonify({"imagePath": image_path})
 
-    # Loop through each PDF file
-    for pdf_file in pdf_files:
-        pdf_path = os.path.join(folder_path, pdf_file)
-        print(f"Processing {pdf_file}...")
-
-        text = extract_text_from_pdf(pdf_path)
-
-        # List of questions
-        questions = [
-            "Extract only the Invoice No?",
-            "Extract only the Invoice Date?",
-            "Extract only the vendor of the Invoice?",
-            "Extract only the total amount due?",
-            "Extract only the Currency in the Invoice?",
-            #"Extract only the PO Number?",
-            #"Extract only the PO Date?",
-            #"Extract only the Vendor?",
-            #"Extract only the Vendor Number?",
-
-        ]
-
-        # Loop through each question and get the answer
-        for question in questions:
-            answer = ask_question(text, question)
-            print(f"{question}: {answer}")
-        print()  # Print a newline for better separation between invoices
-
-# Main loop to scan the folder every 60 seconds
-def main(folder_path):
-    while True:
-        process_pdfs(folder_path)
-        time.sleep(60)  
-
-# Example usage
 if __name__ == "__main__":
-    folder_path = "C:/Users/Redline PC/Documents/Invoices"  # Folder path
-    main(folder_path)
+    app.run(port=5001)
