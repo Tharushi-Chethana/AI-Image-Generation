@@ -6,11 +6,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 function App() {
   const [userInput, setUserInput] = useState("");
   const [generatedImage, setGeneratedImage] = useState(null);
+  const [expandedText, setExpandedText] = useState(""); // New state for expanded text
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false); // New state for blinking effect
 
-  // Fetch images when the component mounts
   useEffect(() => {
     fetchImages();
   }, []);
@@ -25,6 +25,7 @@ function App() {
         userInput,
       });
       setGeneratedImage(response.data.imageUrl); // Backend response for generated image
+      setExpandedText(response.data.expandedText); // Capture the expanded text
       fetchImages(); // Refresh the list of images
     } catch (error) {
       console.error("Error generating image:", error);
@@ -74,7 +75,7 @@ function App() {
               className="form-select form-select-lg mb-3 inputSelection"
               aria-label="Large select example"
             >
-            <option selected>Open this select menu</option>
+              <option selected>Open this select menu</option>
               <option value="1">Tea Box</option>
               <option value="2">Wine Box</option>
               <option value="3">Cheese Box</option>
@@ -98,6 +99,10 @@ function App() {
                 className={`generated-image ${isGenerating ? "blinking" : ""}`}
               />
             )}
+          </div>
+          <div className="expanded-text-container">
+            <h5>Expanded Text</h5>
+            <p>{expandedText}</p>
           </div>
         </div>
       </div>

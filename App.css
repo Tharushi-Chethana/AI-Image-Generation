@@ -1,17 +1,131 @@
-/* .App {
-  text-align:center;
-} */
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
 
-/* h1{
+.App {
+  text-align: center;
+  padding-left: 60px;
+  padding-right: 60px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  background-color: rgb(46, 44, 44);
+  color: white;
+}
+
+/* Header Styles */
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin: 20px 0;
+}
+
+h4 {
+  text-align: center;
+  font-size: 2rem;
+  padding-bottom: 1rem; 
+}
+
+.custom-textarea {
+  height: 220px; /* Set desired height */
+  resize: vertical; /* Allow vertical resizing (optional) */
+  margin-bottom: 1.5rem;
+}
+
+.inputSelection{
+  height: 60px;
+}
+
+.topic-image{
+  width: 250px;
+}
+
+.inputTextArea{
+  /* padding: 1rem; */
+  width: 10rem;
+}
+
+.gallery{
+  font-weight: bold;
+  padding-top: 3rem;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px; /* Adjust height to fit your design */
+  border: 1px solid #000000; /* Optional: Add a border to the container */
+  background-color: #f1f1f1d8; /* Optional: Light gray background */
+}
+
+.generated-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Ensures the image fits within the container without distortion */
+}
+
+.modal-title{
+  color: black;
+}
+
+
+
+/* Button Styles */
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-items: center;
+  margin-top: 20rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Previously Generated Images Section */
+h2 {
+  margin-top: 30px;
+  font-size: 1.5rem;
   text-align: center;
 }
 
-.left-landingPage{
-  text-align: end;
+.PreviouslyGeneratedImages {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
 }
 
-.right-landingPage{
-  text-align: end;
+.PreviouslyGeneratedImages img {
+  max-width: 150px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+
+/* View More Button */
+.viewMore {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.viewMore:hover {
+  background-color: #218838;
+}
+
+.blinking {
+  animation: blinkingAnimation 1s infinite; /* Blink every second */
 }
 
 .App-logo {
@@ -47,4 +161,16 @@
   to {
     transform: rotate(360deg);
   }
-} */
+}
+
+@keyframes blinkingAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

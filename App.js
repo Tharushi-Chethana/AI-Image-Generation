@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   const [userInput, setUserInput] = useState("");
   const [generatedImage, setGeneratedImage] = useState(null);
   const [images, setImages] = useState([]);
-  const [processing, setProcessing] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false); // New state for blinking effect
 
   // Fetch images when the component mounts
   useEffect(() => {
@@ -18,6 +19,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsGenerating(true); // Start blinking
     try {
       const response = await axios.post("http://localhost:5000/generate", {
         userInput,
@@ -26,6 +28,8 @@ function App() {
       fetchImages(); // Refresh the list of images
     } catch (error) {
       console.error("Error generating image:", error);
+    } finally {
+      setIsGenerating(false); // Stop blinking
     }
   };
 
@@ -38,21 +42,27 @@ function App() {
     }
   };
 
+  const handleImageClick = (image) => {
+    setSelectedImage(image); // Set the selected image for the modal
+  };
+
+  const handleCloseModal = () => setSelectedImage(null);
+
   return (
     <div className="App">
       <img
-        src={`http://localhost:5000/backend/generated_images/NEBULA_HIVE - Topic.png`} /* Replace with the URL or path of your fallback image */
+        src={`http://localhost:5000/backend/generated_images/NEBULA_HIVE_Topic.png`}
         alt="Default"
-        class="topic-image"
+        className="topic-image"
       />
-      <div class="row">
-        <div class="col-6">
+      <div className="row">
+        <div className="col-6">
           <h4>Prompt Area</h4>
           <form onSubmit={handleSubmit}>
-            <div class="input-group input-group-lg mb-3 inputTextArea">
+            <div className="input-group input-group-lg mb-3 inputTextArea">
               <textarea
                 type="text"
-                class="form-control custom-textarea"
+                className="form-control custom-textarea"
                 value={userInput}
                 onChange={handleInputChange}
                 placeholder="Enter a description"
@@ -60,46 +70,84 @@ function App() {
                 aria-describedby="inputGroup-sizing-sm"
               />
             </div>
-            <select class="form-select form-select-lg mb-3 inputSelection" aria-label="Large select example">
-              <option selected>Open this select menu</option>
-              <option value="1">Tea</option>
-              <option value="2">Wine</option>
-              <option value="3">Cheese</option>
+            <select
+              className="form-select form-select-lg mb-3 inputSelection"
+              aria-label="Large select example"
+            >
+            <option selected>Open this select menu</option>
+              <option value="1">Tea Box</option>
+              <option value="2">Wine Box</option>
+              <option value="3">Cheese Box</option>
             </select>
-            <button type="submit">Generated Image</button>
+            <button type="submit">Generate Image</button>
           </form>
         </div>
-        <div class="col-6">
+        <div className="col-6">
           <h4>Generation Area</h4>
-          <div class="image-container">
+          <div className="image-container">
             {generatedImage ? (
               <img
                 src={`http://localhost:5000${generatedImage}`}
                 alt="Generated"
-                class="generated-image"
+                className="generated-image"
               />
             ) : (
               <img
-              src={`http://localhost:5000/backend/generated_images/NEBULA_HIVE.png`} /* Replace with the URL or path of your fallback image */
+                src={`http://localhost:5000/backend/generated_images/NEBULA_HIVE_Default_Image.png`}
                 alt="Default"
-                class="generated-image"
+                className={`generated-image ${isGenerating ? "blinking" : ""}`}
               />
             )}
-          </div>    
+          </div>
         </div>
       </div>
       <div>
-        <h4>Gallery</h4>
+        <h4 className="gallery">Gallery</h4>
         <div className="PreviouslyGeneratedImages">
           {images.map((image, index) => (
             <img
               key={index}
               src={`http://localhost:5000${image}`}
               alt={`Generated ${index}`}
+              onClick={() => handleImageClick(image)}
             />
           ))}
-        </div>  
+        </div>
       </div>
+
+      {/* Modal Component */}
+      {selectedImage && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-lg" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="exampleModalLabel">
+                  Image Viewer
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseModal}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <img
+                  src={`http://localhost:5000${selectedImage}`}
+                  alt="Selected"
+                  className="img-fluid"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
