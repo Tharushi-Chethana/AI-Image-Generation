@@ -29,28 +29,6 @@ db.connect((err) => {
   }
 });
 
-// Function to call Python script (image generation)
-async function generateImageWithProgress(userInput, taskId) {
-  try {
-    tasks.get(taskId).progress = 10; // Update progress (10%)
-
-    const expandedText = await axios.post("http://localhost:5001/expand", { userInput });
-    tasks.get(taskId).progress = 50; // Update progress (50%)
-
-    const imagePath = await axios.post("http://localhost:5001/generate-image", {
-      expandedText: expandedText.data,
-    });
-    tasks.get(taskId).progress = 100; // Update progress (100%)
-
-    // Save image path and clean up task
-    db.query("INSERT INTO images (path) VALUES (?)", [imagePath.data]);
-    tasks.get(taskId).imageUrl = `/backend/generated_images/${path.basename(imagePath.data)}`;
-  } catch (error) {
-    console.error("Error generating image:", error);
-    tasks.delete(taskId);
-  }
-}
-
 // Routes
 app.post("/generate", async (req, res) => {
   try {
@@ -83,6 +61,30 @@ app.get("/images", (req, res) => {
     );
   });
 });
+
+
+// Function to call Python script (image generation)
+async function generateImageWithProgress(userInput, taskId) {
+  try {
+    tasks.get(taskId).progress = 10; // Update progress (10%)
+  
+    const expandedText = await axios.post("http://localhost:5001/expand", { userInput });
+    print(expandedText)
+    tasks.get(taskId).progress = 50; // Update progress (50%)
+
+    const imagePath = await axios.post("http://localhost:5001/generate-image", {
+      expandedText: expandedText.data,
+    });
+    tasks.get(taskId).progress = 100; // Update progress (100%)
+
+    // Save image path and clean up task
+    db.query("INSERT INTO images (path) VALUES (?)", [imagePath.data]);
+    tasks.get(taskId).imageUrl = `/backend/generated_images/${path.basename(imagePath.data)}`;
+  } catch (error) {
+    console.error("Error generating image:", error);
+    tasks.delete(taskId);
+  }
+}
 
 const tasks = new Map(); // In-memory task store for simplicity
 

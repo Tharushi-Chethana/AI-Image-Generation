@@ -34,6 +34,7 @@ def expand():
         return jsonify({"error": "No input provided"}), 400
 
     expanded_text = expand_user_input(user_input)
+    print(expanded_text)
     return jsonify(expanded_text)
 
 @app.route("/generate-image", methods=["POST"])
