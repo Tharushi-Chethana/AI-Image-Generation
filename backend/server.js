@@ -4,6 +4,7 @@ const axios = require("axios");
 const path = require("path");
 const cors = require("cors");
 const app = express();
+const { v4: uuid } = require("uuid"); // Import uuid
 
 // Setup middleware
 app.use(express.json());
@@ -29,9 +30,25 @@ db.connect((err) => {
 });
 
 // Function to call Python script (image generation)
-async function generateImage(userInput) {
-  const response = await axios.post("http://localhost:5001/generate", { userInput });
-  return response.data.imagePath; // Assuming Python script returns a path
+async function generateImageWithProgress(userInput, taskId) {
+  try {
+    tasks.get(taskId).progress = 10; // Update progress (10%)
+
+    const expandedText = await axios.post("http://localhost:5001/expand", { userInput });
+    tasks.get(taskId).progress = 50; // Update progress (50%)
+
+    const imagePath = await axios.post("http://localhost:5001/generate-image", {
+      expandedText: expandedText.data,
+    });
+    tasks.get(taskId).progress = 100; // Update progress (100%)
+
+    // Save image path and clean up task
+    db.query("INSERT INTO images (path) VALUES (?)", [imagePath.data]);
+    tasks.get(taskId).imageUrl = `/backend/generated_images/${path.basename(imagePath.data)}`;
+  } catch (error) {
+    console.error("Error generating image:", error);
+    tasks.delete(taskId);
+  }
 }
 
 // Routes
@@ -66,6 +83,36 @@ app.get("/images", (req, res) => {
     );
   });
 });
+
+const tasks = new Map(); // In-memory task store for simplicity
+
+app.post("/start-generation", async (req, res) => {
+  try {
+    const { userInput } = req.body;
+    const taskId = uuid(); // Generate unique task ID
+    tasks.set(taskId, { progress: 0 });
+
+    // Trigger async generation (example function)
+    generateImageWithProgress(userInput, taskId);
+
+    res.json({ taskId });
+  } catch (error) {
+    console.error("Error starting generation:", error);
+    res.status(500).send("Error starting image generation");
+  }
+});
+
+app.get("/progress/:taskId", (req, res) => {
+  const taskId = req.params.taskId;
+  const task = tasks.get(taskId);
+
+  if (!task) {
+    return res.status(404).send("Task not found");
+  }
+
+  res.json(task);
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

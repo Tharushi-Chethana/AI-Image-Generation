@@ -6,10 +6,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 function App() {
   const [userInput, setUserInput] = useState("");
   const [generatedImage, setGeneratedImage] = useState(null);
-  const [expandedText, setExpandedText] = useState(""); // New state for expanded text
+  // const [expandedText, setExpandedText] = useState(""); // New state for expanded text
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false); // New state for blinking effect
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     fetchImages();
@@ -19,18 +20,41 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsGenerating(true); // Start blinking
+    setIsGenerating(true);
+    setProgress(0);
+  
     try {
-      const response = await axios.post("http://localhost:5000/generate", {
+      // Start image generation and get task ID
+      const { data: task } = await axios.post("http://localhost:5000/start-generation", {
         userInput,
       });
-      setGeneratedImage(response.data.imageUrl); // Backend response for generated image
-      setExpandedText(response.data.expandedText); // Capture the expanded text
-      fetchImages(); // Refresh the list of images
+  
+      // Poll the backend for progress updates
+      const pollInterval = 500; // Poll every 500ms
+      const interval = setInterval(async () => {
+        try {
+          const { data: progressData } = await axios.get(
+            `http://localhost:5000/progress/${task.taskId}`
+          );
+  
+          setProgress(progressData.progress);
+  
+          if (progressData.progress >= 100) {
+            clearInterval(interval);
+            setGeneratedImage(progressData.imageUrl);
+            fetchImages(); // Refresh gallery
+            setIsGenerating(false);
+          }
+        } catch (error) {
+          console.error("Error fetching progress:", error);
+          clearInterval(interval);
+          setProgress(0);
+          setIsGenerating(false);
+        }
+      }, pollInterval);
     } catch (error) {
-      console.error("Error generating image:", error);
-    } finally {
-      setIsGenerating(false); // Stop blinking
+      console.error("Error starting image generation:", error);
+      setIsGenerating(false);
     }
   };
 
@@ -100,10 +124,23 @@ function App() {
               />
             )}
           </div>
-          <div className="expanded-text-container">
+          <div className="progress-container">
+            {isGenerating && (
+              <div className="progress-bar-wrapper">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${progress}%`, backgroundColor: 'black' }}
+                >
+                  {progress}%
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* <div className="expanded-text-container">
             <h5>Expanded Text</h5>
             <p>{expandedText}</p>
-          </div>
+          </div> */}
         </div>
       </div>
       <div>

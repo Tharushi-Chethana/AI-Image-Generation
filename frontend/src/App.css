@@ -150,6 +150,26 @@ h2 {
   color: white;
 }
 
+.progress-container {
+  margin-top: 20px;
+  height: 10px;
+  background-color: #ddd; /* Light gray background */
+  border-radius: 5px;
+  overflow: hidden;
+  color: red;
+}
+
+.progress-bar-wrapper {
+  display: flex;
+  height: 100%;
+  color: black;
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.5s ease-in-out; /* Smooth transition */
+}
+
 .App-link {
   color: #61dafb;
 }
