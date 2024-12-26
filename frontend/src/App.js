@@ -6,9 +6,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 function App() {
   const [userInput, setUserInput] = useState("");
   const [generatedImage, setGeneratedImage] = useState(null);
-  // const [expandedText, setExpandedText] = useState(""); // New state for expanded text
+  // const [prompt, setPrompt] = useState(""); // New state for expanded text
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  // const [selectePrompt, setSelectedPrompt] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false); // New state for blinking effect
   const [progress, setProgress] = useState(0);
 
@@ -61,15 +62,23 @@ function App() {
   const fetchImages = async () => {
     try {
       const response = await axios.get("http://localhost:5000/images");
-      setImages(response.data); // Update state with fetched images
+      setImages(
+        response.data.map((item) => ({
+          imagePath: item.imagePath,
+          prompt: item.prompt,
+        }))
+      ); // Store both image path and prompt
     } catch (error) {
       console.error("Error fetching images:", error);
     }
   };
+  
 
-  const handleImageClick = (image) => {
-    setSelectedImage(image); // Set the selected image for the modal
+  const handleImageClick = (image, prompt) => {
+    console.log(image)
+    setSelectedImage(image); // Set the selected image
   };
+  
 
   const handleCloseModal = () => setSelectedImage(null);
 
@@ -149,11 +158,11 @@ function App() {
           {images.map((image, index) => (
             <img
               key={index}
-              src={`http://localhost:5000${image}`}
+              src={`http://localhost:5000${image.imagePath}`}
               alt={`Generated ${index}`}
               onClick={() => handleImageClick(image)}
             />
-          ))}
+          ))},
         </div>
       </div>
 
@@ -169,9 +178,10 @@ function App() {
           <div className="modal-dialog modal-lg" role="document">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel">
-                  Image Viewer
-                </h5>
+              <h5 className="modal-title" id="exampleModalLabel">
+              <p>{selectedImage.prompt}</p>
+              </h5>
+
                 <button
                   type="button"
                   className="btn-close"
@@ -181,10 +191,11 @@ function App() {
               </div>
               <div className="modal-body">
                 <img
-                  src={`http://localhost:5000${selectedImage}`}
+                  src={`http://localhost:5000${selectedImage.imagePath}`}
                   alt="Selected"
                   className="img-fluid"
                 />
+                {/* <p>{selectePrompt}</p> */}
               </div>
             </div>
           </div>

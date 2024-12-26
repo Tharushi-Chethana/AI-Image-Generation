@@ -30,34 +30,38 @@ db.connect((err) => {
 });
 
 // Routes
-app.post("/generate", async (req, res) => {
-  try {
-    const { userInput } = req.body;
-    const imagePath = await generateImage(userInput);
+// app.post("/generate", async (req, res) => {
+//   try {
+//     const { userInput } = req.body;
+//     const imagePath = await generateImage(userInput);
 
-    // Insert image path into MySQL database
-    db.query("INSERT INTO images (path) VALUES (?)", [imagePath], (err, result) => {
-      if (err) {
-        console.error("Error inserting into MySQL:", err);
-        return res.status(500).send("Error saving image");
-      }
+//     // Insert image path into MySQL database
+//     db.query("INSERT INTO images (path, prompt, expandText) VALUES (?, ?, ?)", [imagePath, userInput, expandedText], (err, result) => {
+//       if (err) {
+//         console.error("Error inserting into MySQL:", err);
+//         return res.status(500).send("Error saving image");
+//       }
 
-      res.json({ imageUrl: `/backend/generated_images/${path.basename(imagePath)}` });
-    });
-  } catch (error) {
-    console.error("Error in /generate:", error);
-    res.status(500).send("Error generating image");
-  }
-});
+//       res.json({ imageUrl: `/backend/generated_images/${path.basename(imagePath)}` });
+//     });
+//   } catch (error) {
+//     console.error("Error in /generate:", error);
+//     res.status(500).send("Error generating image");
+//   }
+// });
 
 app.get("/images", (req, res) => {
-  db.query("SELECT path FROM images ORDER BY created_at DESC", (err, results) => {
+  db.query("SELECT path, prompt FROM images ORDER BY created_at DESC", (err, results) => {
     if (err) {
       console.error("Error fetching images:", err);
       return res.status(500).send("Error fetching images");
     }
     res.json(
-      results.map((row) => `/backend/generated_images/${path.basename(row.path)}`)
+      // results.map((row) => `/backend/generated_images/${path.basename(row.path)}`)
+      results.map((row) => ({
+        imagePath: `/backend/generated_images/${path.basename(row.path)}`,
+        prompt: row.prompt
+      }))
     );
   });
 });
@@ -69,7 +73,6 @@ async function generateImageWithProgress(userInput, taskId) {
     tasks.get(taskId).progress = 10; // Update progress (10%)
   
     const expandedText = await axios.post("http://localhost:5001/expand", { userInput });
-    print(expandedText)
     tasks.get(taskId).progress = 50; // Update progress (50%)
 
     const imagePath = await axios.post("http://localhost:5001/generate-image", {
@@ -78,7 +81,7 @@ async function generateImageWithProgress(userInput, taskId) {
     tasks.get(taskId).progress = 100; // Update progress (100%)
 
     // Save image path and clean up task
-    db.query("INSERT INTO images (path) VALUES (?)", [imagePath.data]);
+    db.query("INSERT INTO images (path, prompt) VALUES (?, ?)", [imagePath.data, userInput]);
     tasks.get(taskId).imageUrl = `/backend/generated_images/${path.basename(imagePath.data)}`;
   } catch (error) {
     console.error("Error generating image:", error);

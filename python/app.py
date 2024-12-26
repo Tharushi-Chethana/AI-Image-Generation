@@ -34,11 +34,14 @@ def expand():
         return jsonify({"error": "No input provided"}), 400
 
     expanded_text = expand_user_input(user_input)
+    print("Tharushi1")
     print(expanded_text)
+    print("Tharushi2")
     return jsonify(expanded_text)
 
 @app.route("/generate-image", methods=["POST"])
 def generate_image_route():
+    print("Gunathilaka")
     expanded_text = request.json.get("expandedText")
     if not expanded_text:
         return jsonify({"error": "No expanded text provided"}), 400
@@ -81,19 +84,19 @@ def generate_image(expanded_text):
 
 
 # def generate_image(expanded_text):
-@app.route("/generate", methods=["POST"])
-def generate():
-    user_input = request.json.get("userInput")
-    if not user_input:
-        return jsonify({"error": "No input provided"}), 400
+# @app.route("/generate", methods=["POST"])
+# def generate():
+#     user_input = request.json.get("userInput")
+#     if not user_input:
+#         return jsonify({"error": "No input provided"}), 400
     
-    expanded_text = expand_user_input(user_input)
-    print(expanded_text)
-    image_path = generate_image(expanded_text)
-    return jsonify({
-        "imagePath": image_path,
-        "expandedText": expanded_text 
-    })
+#     expanded_text = expand_user_input(user_input)
+#     print(expanded_text)
+#     image_path = generate_image(expanded_text)
+#     return jsonify({
+#         "imagePath": image_path,
+#         "expandedText": expanded_text 
+#     })
 
 if __name__ == "__main__":
     app.run(port=5001)
