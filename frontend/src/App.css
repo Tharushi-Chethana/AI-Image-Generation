@@ -66,10 +66,50 @@ h4 {
   object-fit: contain; /* Ensures the image fits within the container without distortion */
 }
 
-.modal-title{
-  color: black;
+.modal-content {
+  background-color: #fff; /* Ensure the modal background is white */
+  color: #000; /* Set default text color */
+  padding: 20px;
 }
 
+.modal-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-align: center; /* Center the title */
+  margin: 0 auto;
+  color: #000;
+}
+
+.list-unstyled {
+  padding: 0;
+  margin: 0;
+}
+
+.list-unstyled li {
+  text-align: left; /* Align list items to the left */
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.imagePrompt {
+  margin-top: 5px;
+  font-size: 1rem;
+  color: #555;
+}
+
+strong {
+  display: block; /* Ensure the label appears above the content */
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.modal-header {
+  border-bottom: none; /* Optional: Remove header border */
+}
+
+.btn-close {
+  color: #000; /* Ensure the close button is visible */
+}
 
 
 /* Button Styles */
@@ -173,6 +213,8 @@ h2 {
 .App-link {
   color: #61dafb;
 }
+
+
 
 @keyframes App-logo-spin {
   from {

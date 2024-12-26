@@ -168,39 +168,48 @@ function App() {
 
       {/* Modal Component */}
       {selectedImage && (
-        <div
-          className="modal fade show d-block"
-          tabIndex="-1"
-          role="dialog"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog modal-lg" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-              <p>{selectedImage.prompt}</p>
-              </h5>
-
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={handleCloseModal}
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <img
-                  src={`http://localhost:5000${selectedImage.imagePath}`}
-                  alt="Selected"
-                  className="img-fluid"
-                />
-                {/* <p>{selectePrompt}</p> */}
-              </div>
-            </div>
-          </div>
+  <div
+    className="modal fade show d-block"
+    tabIndex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div className="modal-dialog modal-lg" role="document">
+      <div className="modal-content">
+        <div className="modal-header justify-content-center">
+          <h5 className="modal-title" id="exampleModalLabel">
+            Image Details
+          </h5>
+          <button
+            type="button"
+            className="btn-close position-absolute end-0 top-0 mt-2 me-2"
+            onClick={handleCloseModal}
+            aria-label="Close"
+          ></button>
         </div>
-      )}
+        <div className="modal-body">
+          <ul className="list-unstyled">
+            <li className="mb-3">
+              <strong>Prompt:</strong>
+              <p className="imagePrompt">{selectedImage.prompt}</p>
+            </li>
+            <li>
+              <strong>Image:</strong>
+              <img
+                src={`http://localhost:5000${selectedImage.imagePath}`}
+                alt="Selected"
+                className="img-fluid"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }
