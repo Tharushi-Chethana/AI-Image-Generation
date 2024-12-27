@@ -54,14 +54,15 @@ def expand_user_input(user_input: str):
     prompt = f"Please provide a detailed paragraph-style description based on this input: {user_input}"
     
     # Generate text using the pipeline
-    output = pipe(prompt, max_length=200, truncation=True, pad_token_id=tokenizer.pad_token_id)
+    output = pipe(prompt, max_length=2500, truncation=True, pad_token_id=tokenizer.pad_token_id)
     expanded_text = output[0]['generated_text'].strip()
     
-    # Find and isolate the text after user_input
-    start_index = expanded_text.find(user_input)
+    # Remove the prompt prefix from the text
+    prefix = "Please provide a detailed paragraph-style description based on this input: "
+    start_index = expanded_text.find(prefix)
     if start_index != -1:
-        # Extract everything after the user_input
-        expanded_text = expanded_text[start_index + len(user_input):].strip()
+        # Extract everything after the prefix
+        expanded_text = expanded_text[start_index + len(prefix):].strip()
     
     print(expanded_text)
     return expanded_text
