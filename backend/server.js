@@ -84,6 +84,7 @@ async function generateImageWithProgress(userInput, taskId) {
     // Save image path and clean up task
     db.query("INSERT INTO images (path, prompt, expandedText) VALUES (?, ?, ?)", [imagePath.data, userInput, expandedText.data]);
     tasks.get(taskId).imageUrl = `/backend/generated_images/${path.basename(imagePath.data)}`;
+    tasks.get(taskId).expandedText = expandedText.data
   } catch (error) {
     console.error("Error generating image:", error);
     tasks.delete(taskId);

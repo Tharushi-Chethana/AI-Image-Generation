@@ -7,7 +7,7 @@ function App() {
    const [activeTab, setActiveTab] = useState(1); // State for the active tab
   const [userInput, setUserInput] = useState("");
   const [generatedImage, setGeneratedImage] = useState(null);
-  // const [prompt, setPrompt] = useState(""); // New state for expanded text
+  const [expandedText, setExpandedText] = useState(""); // New state for expanded text
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   // const [selectePrompt, setSelectedPrompt] = useState(null);
@@ -27,10 +27,10 @@ function App() {
   
     try {
       // Start image generation and get task ID
-      const { data: task } = await axios.post("http://localhost:5000/start-generation", {
-        userInput,
+      const {data: task} = await axios.post("http://localhost:5000/start-generation", {
+        userInput
       });
-      
+
   
       // Poll the backend for progress updates
       const pollInterval = 500; // Poll every 500ms
@@ -45,6 +45,7 @@ function App() {
           if (progressData.progress >= 100) {
             clearInterval(interval);
             setGeneratedImage(progressData.imageUrl);
+            setExpandedText(progressData.expandedText);
             fetchImages(); // Refresh gallery
             setIsGenerating(false);
           }
@@ -188,6 +189,14 @@ function App() {
                     />
                   )}
                 </div>
+                <div className="expandedTextr">
+                  {expandedText ? (
+                    <p>{expandedText}</p>
+                  ) : (
+                    <p>Please Wait ...</p>
+                  )}
+                </div>
+                <div>{expandedText}</div>
                 <div className="progress-container">
                   {isGenerating && (
                     <div className="progress-bar-wrapper">
