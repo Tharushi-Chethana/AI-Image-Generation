@@ -25,6 +25,7 @@ h4 {
   text-align: center;
   font-size: 2rem;
   padding-bottom: 1rem; 
+  padding-top: 2.5rem;
 }
 
 .custom-textarea {
@@ -38,7 +39,8 @@ h4 {
 }
 
 .topic-image{
-  width: 250px;
+  width: 300px;
+  margin: 8px;
 }
 
 .inputTextArea{
@@ -214,6 +216,23 @@ h2 {
   color: #61dafb;
 }
 
+.nav-tabs{
+  margin-top: 1.5rem;
+  font-size: larger;
+}
+
+
+/* Active tab styles */
+.nav-link.active {
+  color: #FFFFFF; /* Active font color */
+  background-color: #555555; /* Background color for active tab */
+}
+
+/* Hover styles for all tabs */
+.nav-link:hover {
+  color: #FFFFFF; /* Change font color on hover */
+  background-color: #444444; /* Change background color on hover */
+}
 
 
 @keyframes App-logo-spin {

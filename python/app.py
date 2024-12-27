@@ -34,9 +34,7 @@ def expand():
         return jsonify({"error": "No input provided"}), 400
 
     expanded_text = expand_user_input(user_input)
-    print("Tharushi1")
     print(expanded_text)
-    print("Tharushi2")
     return jsonify(expanded_text)
 
 @app.route("/generate-image", methods=["POST"])
@@ -52,11 +50,22 @@ def generate_image_route():
 
 # Function to expand user input into a detailed version
 def expand_user_input(user_input: str):
+    # Prepare the prompt
     prompt = f"Please provide a detailed paragraph-style description based on this input: {user_input}"
+    
+    # Generate text using the pipeline
     output = pipe(prompt, max_length=200, truncation=True, pad_token_id=tokenizer.pad_token_id)
     expanded_text = output[0]['generated_text'].strip()
-    print(expand_user_input)
+    
+    # Find and isolate the text after user_input
+    start_index = expanded_text.find(user_input)
+    if start_index != -1:
+        # Extract everything after the user_input
+        expanded_text = expanded_text[start_index + len(user_input):].strip()
+    
+    print(expanded_text)
     return expanded_text
+
 
 # Function to generate the image
 def generate_image(expanded_text):

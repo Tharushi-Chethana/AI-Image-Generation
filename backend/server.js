@@ -51,7 +51,7 @@ db.connect((err) => {
 // });
 
 app.get("/images", (req, res) => {
-  db.query("SELECT path, prompt FROM images ORDER BY created_at DESC", (err, results) => {
+  db.query("SELECT path, prompt, expandedText FROM images ORDER BY created_at DESC", (err, results) => {
     if (err) {
       console.error("Error fetching images:", err);
       return res.status(500).send("Error fetching images");
@@ -60,7 +60,8 @@ app.get("/images", (req, res) => {
       // results.map((row) => `/backend/generated_images/${path.basename(row.path)}`)
       results.map((row) => ({
         imagePath: `/backend/generated_images/${path.basename(row.path)}`,
-        prompt: row.prompt
+        prompt: row.prompt,
+        expandedText: row.expandedText
       }))
     );
   });
@@ -81,7 +82,7 @@ async function generateImageWithProgress(userInput, taskId) {
     tasks.get(taskId).progress = 100; // Update progress (100%)
 
     // Save image path and clean up task
-    db.query("INSERT INTO images (path, prompt) VALUES (?, ?)", [imagePath.data, userInput]);
+    db.query("INSERT INTO images (path, prompt, expandedText) VALUES (?, ?, ?)", [imagePath.data, userInput, expandedText.data]);
     tasks.get(taskId).imageUrl = `/backend/generated_images/${path.basename(imagePath.data)}`;
   } catch (error) {
     console.error("Error generating image:", error);
@@ -100,7 +101,7 @@ app.post("/start-generation", async (req, res) => {
     // Trigger async generation (example function)
     generateImageWithProgress(userInput, taskId);
 
-    res.json({ taskId });
+    res.json({ taskId});
   } catch (error) {
     console.error("Error starting generation:", error);
     res.status(500).send("Error starting image generation");
