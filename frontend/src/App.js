@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+
 
 function App() {
    const [activeTab, setActiveTab] = useState(1); // State for the active tab
@@ -173,7 +176,7 @@ function App() {
                 </form>
               </div>
               <div className="col-6">
-                <h4>Generation Area</h4>
+              <h4>Generation Area <FontAwesomeIcon icon={faCircleInfo} /></h4>
                 <div className="image-container">
                   {generatedImage ? (
                     <img
